@@ -9,8 +9,7 @@
 use strict;
 use warnings FATAL => 'all';
 
-# FIXME: Remember to remove the 'Strict' before release.
-use AnyEvent::Strict;
+use AnyEvent;
 use AnyEvent::Socket;
 use AnyEvent::Handle;
 use Getopt::Long;
