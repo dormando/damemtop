@@ -477,7 +477,9 @@ sub display_lines {
 sub display_header {
     my $topbar = 'damemtop: ' . scalar localtime;
     if ($CONF->{mode} eq 't' && $CONF->{top_mode}->{sort_column}) {
-        $topbar .= ' [sort: ' . $CONF->{top_mode}->{sort_column} . ']';
+        my $order  = $CONF->{top_mode}->{sort_order} || 'asc';
+        $topbar .= ' [sort: ' . $CONF->{top_mode}->{sort_column} .
+            ' ' . $order . ']';
     }
     $topbar .= ' [delay: ' . $CONF->{delay} . 's]';
     return $topbar;
