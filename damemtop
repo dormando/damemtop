@@ -283,17 +283,17 @@ sub compute_column {
 
     my $diff_stat = sub {
         my $stat = shift;
-        return 'NA' unless defined $find_stat->($curr_stats, $stat);
+        my $cur = $find_stat->($curr_stats, $stat);
+        return 'NA' unless defined $cur;
         if ($diff_stats) {
             my $diff = eval {
-                return ($find_stat->($curr_stats, $stat)
-                       - $find_stat->($prev_stats, $stat))
+                return ($cur - $find_stat->($prev_stats, $stat))
                        / $TIME_SINCE_LAST_RUN;
             };
             return 'NA' if ($@);
             return $diff;
         } else {
-            return $find_stat->($curr_stats, $stat);
+            return $cur;
         }
     };
 
