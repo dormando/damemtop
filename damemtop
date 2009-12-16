@@ -35,9 +35,7 @@ $SIG{INT} = sub {
     exit;
 };
 
-# TODO: make this load from central location, and merge in homedir changes.
-# then merge Getopt::Long stuff on top of that
-# TODO: Set a bunch of defaults and merge in.
+# TODO: merge some GetOptions stuff on top of the loaded config.
 my $CONF = load_config();
 my %CONS    = ();
 my $LAST_RUN = time; # time after the last loop cycle.
@@ -536,13 +534,31 @@ sub clear_screen {
 # TODO: Handle the YAML error and make it prettier.
 sub load_config {
     my $config = $opts{config} if $opts{config};
-    my $homedir = "$ENV{HOME}/.damemtop/damemtop.yaml";
-    if (-e $homedir) {
-        $config = $homedir;
+
+    my $default = {
+        delay => 3,
+        mode  => 't',
+        top_mode => { sort_column => 'hit_rate', sort_order => 'desc',
+            columns => [ 'hostname', 'all_version', 'all_fill_rate',
+                'hit_rate', 'evictions', 'get_hits', 'get_misses' ], },
+        servers => [ '127.0.0.1:11211' ],
+    };
+
+    # If config has been overridden, don't do the merge down.
+    if ($config) {
+        return LoadFile($config);
     } else {
-        $config = '/etc/damemtop.yaml';
+        my $global  = '/etc/damemtop.yaml';
+        my $homedir = "$ENV{HOME}/.damemtop/damemtop.yaml";
+        my $local   = './damemtop.yaml';
+        $global  = -e $global ? LoadFile($global) : {};
+        $homedir = -e $homedir ? LoadFile($homedir) : {};
+        $local   = -e $local ? LoadFile($local) : {};
+
+        # Merge.
+        my %final = (%{$default}, %{$global}, %{$homedir}, %{$local});
+        return \%final;
     }
-    return LoadFile($config);
 }
 
 sub show_help {
